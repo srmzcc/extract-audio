@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.progress-bar::before {
+  width: var(--progress-bar-w);
+}
