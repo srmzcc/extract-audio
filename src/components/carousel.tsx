@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 
 interface CarouselProps {
   thumbnails: string[]
-  timeout: number
+  timeout?: number
 }
 
-export function Carousel({ thumbnails, timeout }: CarouselProps) {
+export function Carousel({ thumbnails, timeout = 2000 }: CarouselProps) {
   const [index, setIndex] = useState<number>(0)
 
   useEffect(() => {

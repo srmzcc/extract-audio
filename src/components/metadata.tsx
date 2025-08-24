@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { BlobSource, Input }  from 'mediabunny'
 
-interface VideoMetadataProps {
+interface MetadataProps {
   file?: File
   input?: Input<BlobSource>
 }
@@ -14,7 +14,7 @@ interface Metadata {
   audio: boolean
 }
 
-export function VideoMetadata({ file, input }: VideoMetadataProps) {
+export function Metadata({ file, input }: MetadataProps) {
   const [metadata, setMetadata] = useState<Partial<Metadata>>({})
 
   useEffect(() => {

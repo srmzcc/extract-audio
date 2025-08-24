@@ -1,9 +1,5 @@
 import { twMerge } from 'tailwind-merge'
 
-interface CSSVars extends React.CSSProperties {
-  "--w"?: string
-}
-
 interface ProgressBarProps {
   progress: number
   className?: string
@@ -13,7 +9,7 @@ export function ProgressBar({ progress, className }: ProgressBarProps) {
   const percentage: number = Math.round(progress * 100)
 
   return (
-    <div
+    <span
       className={
         twMerge(
           `relative
@@ -28,9 +24,7 @@ export function ProgressBar({ progress, className }: ProgressBarProps) {
           className
         )
       }
-      style={{ '--progress-bar-w': `${percentage}%`} as CSSVars}
-    >
-
-    </div>
+      style={{ '--progress-bar-w': percentage + '%' } as React.CSSProperties}
+    ></span>
   )
 }
