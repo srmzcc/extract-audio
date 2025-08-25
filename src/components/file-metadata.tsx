@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { BlobSource, Input }  from 'mediabunny'
 
-interface MetadataProps {
+interface FileMetadataProps {
   file?: File
   input?: Input<BlobSource>
 }
@@ -14,7 +14,7 @@ interface Metadata {
   audio: boolean
 }
 
-export function Metadata({ file, input }: MetadataProps) {
+export function FileMetadata({ file, input }: FileMetadataProps) {
   const [metadata, setMetadata] = useState<Partial<Metadata>>({})
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export function Metadata({ file, input }: MetadataProps) {
     const type = file.type
     const size = (file.size / 1_048_576).toFixed(2)
 
-    setMetadata(prev => ({ ...prev, name, type, size }))
+    setMetadata(() => ({ name, type, size }))
 
     if (!input) return
 
@@ -77,5 +77,3 @@ export function Metadata({ file, input }: MetadataProps) {
     </ul>
   )
 }
-
-

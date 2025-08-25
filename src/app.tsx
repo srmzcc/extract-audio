@@ -2,8 +2,8 @@ import { useRef, useState } from 'react'
 import { Input, ALL_FORMATS, BlobSource } from 'mediabunny'
 
 import { Button } from './components/button'
-import { Thumbnails } from './components/thumbnails'
-import { Metadata } from './components/metadata'
+import { VideoThumbnails } from './components/video-thumbnails'
+import { FileMetadata } from './components/file-metadata'
 import { AudioPlayer } from './components/audio-player'
 
 export function App() {
@@ -18,7 +18,7 @@ export function App() {
 
     const audio = file.type.includes('audio')
     const video = file.type.includes('video')
-    if (!audio && !video) return
+    if (!audio && !video) return // add feedback
 
     setFile(file)
 
@@ -47,9 +47,9 @@ export function App() {
           onChange={handleChange}
         />
 
-        <Thumbnails input={input} />
+        <VideoThumbnails input={input} />
 
-        <Metadata file={file} input={input} />
+        <FileMetadata file={file} input={input} />
         
         <AudioPlayer input={input} />
       </div>

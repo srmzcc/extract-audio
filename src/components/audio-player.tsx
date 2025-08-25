@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  AudioBufferSink,
   BufferTarget,
   Conversion,
   Output,
@@ -25,38 +24,55 @@ export function AudioPlayer({ input }: { input?: Input<BlobSource> }) {
   useEffect(() => {
     if (!input) return
 
+    let isCancelled: boolean = false
+    let conversion: Conversion | null = null
+
     setAudio(undefined)
+    setIsPlaying(false)
+    setProgress(0)
 
     ;(async () => {
-      // const audioTrack = await input.getPrimaryAudioTrack()
-      // if (!audioTrack) return
+      const audioTrack = await input.getPrimaryAudioTrack()
+      if (!audioTrack) return // add feedback
 
-      // const sink = new AudioBufferSink(audioTrack)
-
-      // for await (const { buffer, timestamp } of sink.buffers(5, 10)) {
-      //   const node = audioContext.createBufferSource()
-      //   node.buffer = buffer
-      //   node.connect(audioContext.destination)
-      //   node.start(timestamp)
-      // }
-      
       const output = new Output({
         format: new WavOutputFormat(),
         target: new BufferTarget()
       })
 
-      const conversion = await Conversion.init({ input, output })
-      conversion.onProgress = progress => setProgress(progress)
-      await conversion.execute()
+      conversion = await Conversion.init({ input, output })
+      conversion.onProgress = progress => {
+        if (!isCancelled) {
+          setProgress(progress)
+        }
+      }
 
-      const audioBuffer = output.target.buffer
-      if (!audioBuffer) return
+      try {
+        await conversion.execute()
+        if (isCancelled) return
 
-      const audioBlob = new Blob([audioBuffer], { type: 'audio/wav' })
-      const url = URL.createObjectURL(audioBlob)
+        const audioBuffer = output.target.buffer
+        if (!audioBuffer) return
 
-      setAudio(url)
+        const audioBlob = new Blob([audioBuffer], { type: 'audio/wav' })
+        const url = URL.createObjectURL(audioBlob)
+        setAudio(url)
+      } catch (err) {
+        if (!isCancelled) {
+          console.error('Conversion error:', err)
+        }
+      }
     })()
+
+    return () => {
+      isCancelled = true
+
+      if (!!conversion) {
+        conversion.cancel().catch(err => {
+          console.warn('Error cancelling conversion:', err)
+        })
+      }
+    }
   }, [input])
 
   const togglePlay = () => {
