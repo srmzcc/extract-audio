@@ -1,7 +1,8 @@
 import { twMerge } from 'tailwind-merge'
 
 interface ButtonProps {
-  children: React.ReactNode
+  children?: React.ReactNode
+  style?: React.CSSProperties
   className?: string
   onClick?: React.MouseEventHandler<HTMLButtonElement>
   disabled?: boolean
@@ -9,12 +10,14 @@ interface ButtonProps {
 
 export function Button({
   children,
+  style,
   className,
   onClick,
   disabled = false
 }: ButtonProps) {
   return (
     <button
+      style={style}
       className={
         twMerge(
           `relative
