@@ -20,27 +20,54 @@ export function FileMetadata({ file, input }: FileMetadataProps) {
   useEffect(() => {
     if (!file) return
 
-    setMetadata({})
+    const { name: rawName, type, size: rawSize } = file
+    const name = rawName.replace(/\.[^/.]+$/, '')
+    const size = (rawSize / 1_048_576).toFixed(2)
 
-    const name = file.name.split('.').slice(0, -1).join('.')
-    const type = file.type
-    const size = (file.size / 1_048_576).toFixed(2)
-
-    setMetadata(() => ({ name, type, size }))
+    setMetadata({ name, type, size })
 
     if (!input) return
 
+    let isCancelled = false
+
     ;(async () => {
-      const _duration = await input.computeDuration()
-      const minutes = Math.trunc(_duration / 60)
-      const seconds = Math.ceil(_duration % 60)
-      const duration = `${minutes}:${seconds}`
+      try {
+        const totalSeconds = await input.computeDuration()
+        if (isCancelled) return
 
-      const audioTrack = await input.getPrimaryAudioTrack()
-      const audio = !!audioTrack
+        const hours = Math.floor(totalSeconds / 3600)
+        const minutes = Math.floor((totalSeconds % 3600) / 60)
+        const seconds = Math.floor(totalSeconds % 60)
 
-      setMetadata(prev => ({ ...prev, duration, audio }))
+        let duration: string
+
+        if (hours > 0) {
+          duration =
+            `${hours.toString().padStart(2, '0')}:` +
+            `${minutes.toString().padStart(2, '0')}:` +
+            `${seconds.toString().padStart(2, '0')}`
+        } else {
+          duration =
+            `${minutes.toString().padStart(2, '0')}:` +
+            `${seconds.toString().padStart(2, '0')}`
+        }
+
+        const audioTrack = await input.getPrimaryAudioTrack()
+        if (isCancelled) return
+
+        const audio = !!audioTrack
+
+        setMetadata(prev => ({ ...prev, duration, audio }))
+      } catch (err) {
+        if (!isCancelled) {
+          console.error('Error extracting metadata:', err)
+        }
+      }
     })()
+
+    return () => {
+      isCancelled = true
+    }
   }, [file, input])
 
   const { name, type, size, duration, audio } = metadata

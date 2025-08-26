@@ -18,7 +18,7 @@ export function VideoThumbnails({ input, count = 5 }: VideoThumbnailsProps) {
   useEffect(() => {
     if (!input) return
 
-    let cancelled = false
+    let isCancelled = false
 
     setThumbnails([])
 
@@ -55,7 +55,7 @@ export function VideoThumbnails({ input, count = 5 }: VideoThumbnailsProps) {
 
         const urls: string[] = []
         for await (const wrappedCanvas of sink.canvasesAtTimestamps(timestamps)) {
-          if (cancelled) break
+          if (isCancelled) break
 
           if (!!wrappedCanvas) { 
             const canvasElement = wrappedCanvas.canvas as HTMLCanvasElement
@@ -64,7 +64,7 @@ export function VideoThumbnails({ input, count = 5 }: VideoThumbnailsProps) {
           }
         }
 
-        if (!cancelled) {
+        if (!isCancelled) {
           setThumbnails(prev => [...prev, ...urls])
         }
       } catch (err) {
@@ -73,7 +73,7 @@ export function VideoThumbnails({ input, count = 5 }: VideoThumbnailsProps) {
     })()
 
     return () => {
-      cancelled = true
+      isCancelled = true
     }
   }, [input, count])
 

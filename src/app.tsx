@@ -51,7 +51,8 @@ export function App() {
 
         <FileMetadata file={file} input={input} />
         
-        <AudioPlayer input={input} />
+        <AudioPlayer file={file} input={input} />
+        {file ? <audio src={URL.createObjectURL(file)} controls></audio> : null}
       </div>
       {/* component end */}
     </div>

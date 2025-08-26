@@ -11,7 +11,12 @@ import {
 import { Button } from './button'
 import { ProgressBar } from './progress-bar'
 
-export function AudioPlayer({ input }: { input?: Input<BlobSource> }) {
+interface AudioPlayerProps {
+  file?: File
+  input?: Input<BlobSource>
+}
+
+export function AudioPlayer({ file, input }: AudioPlayerProps) {
   const [audio, setAudio] = useState<string>()
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [volume, setVolume] = useState<number>(0.75)
@@ -22,18 +27,29 @@ export function AudioPlayer({ input }: { input?: Input<BlobSource> }) {
   const isDragging = useRef<boolean>(false)
 
   useEffect(() => {
-    if (!input) return
+    if (!file) return
 
-    let isCancelled: boolean = false
+    let isCancelled = false
     let conversion: Conversion | null = null
 
     setAudio(undefined)
     setIsPlaying(false)
     setProgress(0)
 
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      audioRef.current.src = ''
+    }
+
+    if (!input) return
+
     ;(async () => {
       const audioTrack = await input.getPrimaryAudioTrack()
       if (!audioTrack) return // add feedback
+
+      const tempUrl = URL.createObjectURL(file)
+      setAudio(tempUrl)
 
       const output = new Output({
         format: new WavOutputFormat(),
@@ -73,7 +89,7 @@ export function AudioPlayer({ input }: { input?: Input<BlobSource> }) {
         })
       }
     }
-  }, [input])
+  }, [file, input])
 
   const togglePlay = () => {
     if (!audioRef.current) return
